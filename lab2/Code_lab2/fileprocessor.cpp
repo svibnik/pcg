@@ -1,5 +1,6 @@
 #include "fileprocessor.h"
 #include <QFileInfo>
+#include <QDebug>
 
 FileProcessor::FileProcessor(const QString &folderPath, QObject *parent)
     : QObject(parent)
@@ -22,7 +23,8 @@ void FileProcessor::processFiles()
         int dpiX = 72, dpiY = 72;
         int colorDepth = 0;
         QString format = "Unknown";
-        QString compression = "Unknown";
+        QString compressionType = "Unknown";
+        double compressionRatio = 0.0;
 
         if (reader.canRead()) {
             size = reader.size();
@@ -43,14 +45,15 @@ void FileProcessor::processFiles()
             if (dpiY <= 0) dpiY = 72;
         }
 
-        compression = getCompressionInfo(filePath);
+        compressionType = getCompressionType(filePath);
+        compressionRatio = calculateCompressionRatio(filePath);
 
         if (size.isEmpty() && !image.isNull()) {
             size = image.size();
         }
 
         emit fileProcessed(fileInfo.fileName(), size, dpiX, dpiY,
-                           colorDepth, compression, format);
+                           colorDepth, format, compressionType, compressionRatio);
 
         int percent = (i + 1) * 100 / totalFiles;
         emit progressUpdated(percent, fileInfo.fileName());
@@ -112,7 +115,7 @@ int FileProcessor::calculateColorDepth(const QImage &image)
     }
 }
 
-QString FileProcessor::getCompressionInfo(const QString &filePath)
+QString FileProcessor::getCompressionType(const QString &filePath)
 {
     QFileInfo fileInfo(filePath);
     QString extension = fileInfo.suffix().toLower();
@@ -137,6 +140,38 @@ QString FileProcessor::getCompressionInfo(const QString &filePath)
     }
 
     return "Unknown";
+}
+
+double FileProcessor::calculateCompressionRatio(const QString &filePath)
+{
+    QFileInfo fileInfo(filePath);
+    qint64 compressedSize = fileInfo.size();
+
+    QImage image(filePath);
+    if (image.isNull()) {
+        return 0.0;
+    }
+
+    int width = image.width();
+    int height = image.height();
+    int bitsPerPixel = calculateColorDepth(image);
+
+    if (width == 0 || height == 0 || bitsPerPixel == 0) {
+        return 0.0;
+    }
+
+    qint64 uncompressedSize = (qint64)width * height * bitsPerPixel / 8;
+
+    if (uncompressedSize <= 0) {
+        return 0.0;
+    }
+
+    double ratio = (1.0 - (double)compressedSize / uncompressedSize) * 100.0;
+
+    if (ratio < 0) ratio = 0;
+    if (ratio > 100) ratio = 100;
+
+    return ratio;
 }
 
 QString FileProcessor::getFormatFromExtension(const QString &filePath)

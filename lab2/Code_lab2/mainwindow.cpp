@@ -61,21 +61,20 @@ void MainWindow::setupUI()
 void MainWindow::setupTable()
 {
     table = new QTableWidget();
-    table->setColumnCount(7);
+    table->setColumnCount(6);
 
     QStringList headers;
-    headers << "Имя файла" << "Размер (пиксели)" << "Разрешение X (DPI)"
-            << "Разрешение Y (DPI)" << "Глубина цвета" << "Сжатие" << "Формат";
+    headers << "Имя файла" << "Размер (пиксели)" << "Разрешение (DPI)"
+            << "Глубина цвета" << "Формат" << "Сжатие (%)";
 
     table->setHorizontalHeaderLabels(headers);
 
     table->setColumnWidth(0, 250);
     table->setColumnWidth(1, 150);
-    table->setColumnWidth(2, 140);
-    table->setColumnWidth(3, 140);
+    table->setColumnWidth(2, 120);
+    table->setColumnWidth(3, 100);
     table->setColumnWidth(4, 120);
-    table->setColumnWidth(5, 180);
-    table->setColumnWidth(6, 100);
+    table->setColumnWidth(5, 100);
 
     table->horizontalHeader()->setStretchLastSection(true);
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
@@ -143,26 +142,40 @@ void MainWindow::updateProgress(int value, const QString &filename)
 
 void MainWindow::onFileProcessed(const QString &filename, const QSize &size,
                                  int dpiX, int dpiY, int colorDepth,
-                                 const QString &compression, const QString &format)
+                                 const QString &format, const QString &compressionType,
+                                 double compressionRatio)
 {
-    addFileToTable(filename, size, dpiX, dpiY, colorDepth, compression, format);
+    addFileToTable(filename, size, dpiX, dpiY, colorDepth, format, compressionType, compressionRatio);
     table->scrollToBottom();
 }
 
 void MainWindow::addFileToTable(const QString &filename, const QSize &size,
                                 int dpiX, int dpiY, int colorDepth,
-                                const QString &compression, const QString &format)
+                                const QString &format, const QString &compressionType,
+                                double compressionRatio)
 {
     int row = table->rowCount();
     table->insertRow(row);
 
+    QString dpiString;
+    if (dpiX == dpiY) {
+        dpiString = QString("%1").arg(dpiX);
+    } else {
+        dpiString = QString("%1 × %2").arg(dpiX).arg(dpiY);
+    }
+
+    QFileInfo fileInfo(filename);
+    QString extension = fileInfo.suffix().toUpper();
+    if (extension.isEmpty()) {
+        extension = format;
+    }
+
     table->setItem(row, 0, new QTableWidgetItem(filename));
     table->setItem(row, 1, new QTableWidgetItem(QString("%1 × %2").arg(size.width()).arg(size.height())));
-    table->setItem(row, 2, new QTableWidgetItem(QString::number(dpiX)));
-    table->setItem(row, 3, new QTableWidgetItem(QString::number(dpiY)));
-    table->setItem(row, 4, new QTableWidgetItem(QString("%1 бит").arg(colorDepth)));
-    table->setItem(row, 5, new QTableWidgetItem(compression));
-    table->setItem(row, 6, new QTableWidgetItem(format));
+    table->setItem(row, 2, new QTableWidgetItem(dpiString));
+    table->setItem(row, 3, new QTableWidgetItem(QString("%1 бит").arg(colorDepth)));
+    table->setItem(row, 4, new QTableWidgetItem(format));
+    table->setItem(row, 5, new QTableWidgetItem(QString("%1%").arg(compressionRatio, 0, 'f', 1)));
 
     table->viewport()->update();
 }

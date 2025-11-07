@@ -36,14 +36,16 @@ private slots:
     void analysisFinished();
     void onFileProcessed(const QString &filename, const QSize &size,
                          int dpiX, int dpiY, int colorDepth,
-                         const QString &compression, const QString &format);
+                         const QString &format, const QString &compressionType,
+                         double compressionRatio);
 
 private:
     void setupUI();
     void setupTable();
     void addFileToTable(const QString &filename, const QSize &size,
                         int dpiX, int dpiY, int colorDepth,
-                        const QString &compression, const QString &format);
+                        const QString &format, const QString &compressionType,
+                        double compressionRatio);
 
     QWidget *centralWidget;
     QVBoxLayout *mainLayout;
