@@ -52,8 +52,13 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "dpiX",
         "dpiY",
         "colorDepth",
-        "compression",
-        "format"
+        "format",
+        "compressionType",
+        "compressionRatio",
+        "quantizationInfo",
+        "showQuantizationMatrix",
+        "row",
+        "column"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -68,9 +73,14 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         // Slot 'analysisFinished'
         QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onFileProcessed'
-        QtMocHelpers::SlotData<void(const QString &, const QSize &, int, int, int, const QString &, const QString &)>(8, 2, QMC::AccessPrivate, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(const QString &, const QSize &, int, int, int, const QString &, const QString &, double, const QString &)>(8, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 6 }, { QMetaType::QSize, 9 }, { QMetaType::Int, 10 }, { QMetaType::Int, 11 },
-            { QMetaType::Int, 12 }, { QMetaType::QString, 13 }, { QMetaType::QString, 14 },
+            { QMetaType::Int, 12 }, { QMetaType::QString, 13 }, { QMetaType::QString, 14 }, { QMetaType::Double, 15 },
+            { QMetaType::QString, 16 },
+        }}),
+        // Slot 'showQuantizationMatrix'
+        QtMocHelpers::SlotData<void(int, int)>(17, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 18 }, { QMetaType::Int, 19 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -99,7 +109,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 1: _t->analyzeFiles(); break;
         case 2: _t->updateProgress((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 3: _t->analysisFinished(); break;
-        case 4: _t->onFileProcessed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QSize>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[3])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[4])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[5])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[6])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[7]))); break;
+        case 4: _t->onFileProcessed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QSize>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[3])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[4])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[5])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[6])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[7])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[8])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[9]))); break;
+        case 5: _t->showQuantizationMatrix((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
         default: ;
         }
     }
@@ -124,14 +135,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 6;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 5)
+        if (_id < 6)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 5;
+        _id -= 6;
     }
     return _id;
 }

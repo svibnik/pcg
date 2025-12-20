@@ -48,8 +48,10 @@ template <> constexpr inline auto FileProcessor::qt_create_metaobjectdata<qt_met
         "dpiX",
         "dpiY",
         "colorDepth",
-        "compression",
         "format",
+        "compressionType",
+        "compressionRatio",
+        "quantizationInfo",
         "finished",
         "processFiles"
     };
@@ -60,14 +62,15 @@ template <> constexpr inline auto FileProcessor::qt_create_metaobjectdata<qt_met
             { QMetaType::Int, 3 }, { QMetaType::QString, 4 },
         }}),
         // Signal 'fileProcessed'
-        QtMocHelpers::SignalData<void(const QString &, const QSize &, int, int, int, const QString &, const QString &)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SignalData<void(const QString &, const QSize &, int, int, int, const QString &, const QString &, double, const QString &)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 4 }, { QMetaType::QSize, 6 }, { QMetaType::Int, 7 }, { QMetaType::Int, 8 },
-            { QMetaType::Int, 9 }, { QMetaType::QString, 10 }, { QMetaType::QString, 11 },
+            { QMetaType::Int, 9 }, { QMetaType::QString, 10 }, { QMetaType::QString, 11 }, { QMetaType::Double, 12 },
+            { QMetaType::QString, 13 },
         }}),
         // Signal 'finished'
-        QtMocHelpers::SignalData<void()>(12, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SignalData<void()>(14, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'processFiles'
-        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPublic, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -92,7 +95,7 @@ void FileProcessor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->progressUpdated((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 1: _t->fileProcessed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QSize>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[3])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[4])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[5])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[6])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[7]))); break;
+        case 1: _t->fileProcessed((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QSize>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[3])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[4])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[5])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[6])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[7])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[8])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[9]))); break;
         case 2: _t->finished(); break;
         case 3: _t->processFiles(); break;
         default: ;
@@ -101,7 +104,7 @@ void FileProcessor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
     if (_c == QMetaObject::IndexOfMethod) {
         if (QtMocHelpers::indexOfMethod<void (FileProcessor::*)(int , const QString & )>(_a, &FileProcessor::progressUpdated, 0))
             return;
-        if (QtMocHelpers::indexOfMethod<void (FileProcessor::*)(const QString & , const QSize & , int , int , int , const QString & , const QString & )>(_a, &FileProcessor::fileProcessed, 1))
+        if (QtMocHelpers::indexOfMethod<void (FileProcessor::*)(const QString & , const QSize & , int , int , int , const QString & , const QString & , double , const QString & )>(_a, &FileProcessor::fileProcessed, 1))
             return;
         if (QtMocHelpers::indexOfMethod<void (FileProcessor::*)()>(_a, &FileProcessor::finished, 2))
             return;
@@ -146,9 +149,9 @@ void FileProcessor::progressUpdated(int _t1, const QString & _t2)
 }
 
 // SIGNAL 1
-void FileProcessor::fileProcessed(const QString & _t1, const QSize & _t2, int _t3, int _t4, int _t5, const QString & _t6, const QString & _t7)
+void FileProcessor::fileProcessed(const QString & _t1, const QSize & _t2, int _t3, int _t4, int _t5, const QString & _t6, const QString & _t7, double _t8, const QString & _t9)
 {
-    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2, _t3, _t4, _t5, _t6, _t7);
+    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2, _t3, _t4, _t5, _t6, _t7, _t8, _t9);
 }
 
 // SIGNAL 2

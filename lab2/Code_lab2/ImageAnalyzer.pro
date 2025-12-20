@@ -10,11 +10,13 @@ CONFIG += c++17
 
 SOURCES += \
     fileprocessor.cpp \
+    jpegparser.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     fileprocessor.h \
+    jpegparser.h \
     mainwindow.h
 
 FORMS += \

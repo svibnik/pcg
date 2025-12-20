@@ -61,11 +61,12 @@ void MainWindow::setupUI()
 void MainWindow::setupTable()
 {
     table = new QTableWidget();
-    table->setColumnCount(6);
+    table->setColumnCount(7);
 
     QStringList headers;
     headers << "Имя файла" << "Размер (пиксели)" << "Разрешение (DPI)"
-            << "Глубина цвета" << "Формат" << "Сжатие (%)";
+            << "Глубина цвета" << "Формат" << "Сжатие (%)"
+            << "Матрица квантования";
 
     table->setHorizontalHeaderLabels(headers);
 
@@ -75,6 +76,7 @@ void MainWindow::setupTable()
     table->setColumnWidth(3, 100);
     table->setColumnWidth(4, 120);
     table->setColumnWidth(5, 100);
+    table->setColumnWidth(6, 150);
 
     table->horizontalHeader()->setStretchLastSection(true);
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
@@ -86,6 +88,8 @@ void MainWindow::setupTable()
 
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     table->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
+
+    connect(table, &QTableWidget::cellDoubleClicked, this, &MainWindow::showQuantizationMatrix);
 
     mainLayout->addWidget(table);
 }
@@ -143,16 +147,17 @@ void MainWindow::updateProgress(int value, const QString &filename)
 void MainWindow::onFileProcessed(const QString &filename, const QSize &size,
                                  int dpiX, int dpiY, int colorDepth,
                                  const QString &format, const QString &compressionType,
-                                 double compressionRatio)
+                                 double compressionRatio, const QString &quantizationInfo)
 {
-    addFileToTable(filename, size, dpiX, dpiY, colorDepth, format, compressionType, compressionRatio);
+    addFileToTable(filename, size, dpiX, dpiY, colorDepth,
+                   format, compressionType, compressionRatio, quantizationInfo);
     table->scrollToBottom();
 }
 
 void MainWindow::addFileToTable(const QString &filename, const QSize &size,
                                 int dpiX, int dpiY, int colorDepth,
                                 const QString &format, const QString &compressionType,
-                                double compressionRatio)
+                                double compressionRatio, const QString &quantizationInfo)
 {
     int row = table->rowCount();
     table->insertRow(row);
@@ -164,18 +169,36 @@ void MainWindow::addFileToTable(const QString &filename, const QSize &size,
         dpiString = QString("%1 × %2").arg(dpiX).arg(dpiY);
     }
 
-    QFileInfo fileInfo(filename);
-    QString extension = fileInfo.suffix().toUpper();
-    if (extension.isEmpty()) {
-        extension = format;
-    }
-
     table->setItem(row, 0, new QTableWidgetItem(filename));
     table->setItem(row, 1, new QTableWidgetItem(QString("%1 × %2").arg(size.width()).arg(size.height())));
     table->setItem(row, 2, new QTableWidgetItem(dpiString));
     table->setItem(row, 3, new QTableWidgetItem(QString("%1 бит").arg(colorDepth)));
     table->setItem(row, 4, new QTableWidgetItem(format));
     table->setItem(row, 5, new QTableWidgetItem(QString("%1%").arg(compressionRatio, 0, 'f', 1)));
+
+    QTableWidgetItem *qtItem = new QTableWidgetItem();
+
+    if (format.toUpper() == "JPEG" || format.toUpper() == "JPG") {
+        if (!quantizationInfo.isEmpty() &&
+            quantizationInfo != "Не найдено" &&
+            !quantizationInfo.contains("не найдено")) {
+            qtItem->setText("Есть (двойной клик)");
+            qtItem->setData(Qt::UserRole, quantizationInfo);
+            qtItem->setToolTip("Двойной клик для просмотра матрицы квантования");
+
+            qtItem->setForeground(Qt::black);
+            qtItem->setFont(QFont());
+
+        } else {
+            qtItem->setText("Нет данных");
+            qtItem->setForeground(Qt::darkGray);
+        }
+    } else {
+        qtItem->setText("Не применимо");
+        qtItem->setForeground(Qt::darkGray);
+    }
+
+    table->setItem(row, 6, qtItem);
 
     table->viewport()->update();
 }
@@ -189,4 +212,53 @@ void MainWindow::analysisFinished()
 
     processor = nullptr;
     processorThread = nullptr;
+}
+
+void MainWindow::showQuantizationMatrix(int row, int column)
+{
+    if (column != 4 && column != 6) {
+        return;
+    }
+
+    QTableWidgetItem *formatItem = table->item(row, 4);
+    if (!formatItem) return;
+
+    QString format = formatItem->text().toUpper();
+    if (format != "JPEG" && format != "JPG") {
+        QMessageBox::information(this, "Информация", "Матрица квантования доступна только для JPEG файлов");
+        return;
+    }
+
+    QTableWidgetItem *qtItem = table->item(row, 6);
+    if (!qtItem) return;
+
+    QString qtMatrix = qtItem->data(Qt::UserRole).toString();
+
+    if (!qtMatrix.isEmpty() && qtMatrix != "Нет данных" && qtMatrix != "Не применимо") {
+        QDialog *dialog = new QDialog(this);
+        dialog->setWindowTitle("Матрица квантования - " + table->item(row, 0)->text());
+        dialog->setFixedSize(350, 200);
+
+        QVBoxLayout *layout = new QVBoxLayout(dialog);
+
+        QTextEdit *textEdit = new QTextEdit(dialog);
+        textEdit->setPlainText(qtMatrix);
+        textEdit->setReadOnly(true);
+
+        QFont font("Consolas", 10);
+        textEdit->setFont(font);
+        textEdit->setLineWrapMode(QTextEdit::NoWrap);
+        textEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+        QPushButton *closeButton = new QPushButton("Закрыть", dialog);
+        connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
+
+        layout->addWidget(textEdit);
+        layout->addWidget(closeButton);
+
+        dialog->exec();
+        dialog->deleteLater();
+    } else {
+        QMessageBox::information(this, "Информация", "Матрица квантования не найдена или недоступна для этого файла");
+    }
 }

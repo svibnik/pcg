@@ -1,4 +1,5 @@
 #include "fileprocessor.h"
+#include "jpegparser.h"
 #include <QFileInfo>
 #include <QDebug>
 
@@ -16,7 +17,6 @@ void FileProcessor::processFiles()
     for (int i = 0; i < totalFiles; ++i) {
         const QString &filePath = imageFiles[i];
         QFileInfo fileInfo(filePath);
-
         QImageReader reader(filePath);
 
         QSize size(0, 0);
@@ -25,6 +25,7 @@ void FileProcessor::processFiles()
         QString format = "Unknown";
         QString compressionType = "Unknown";
         double compressionRatio = 0.0;
+        QString quantizationInfo = "";
 
         if (reader.canRead()) {
             size = reader.size();
@@ -52,8 +53,21 @@ void FileProcessor::processFiles()
             size = image.size();
         }
 
+        if (format == "JPEG" || format == "JPG" ||
+            fileInfo.suffix().toLower() == "jpg" ||
+            fileInfo.suffix().toLower() == "jpeg") {
+
+            QVector<QuantizationTable> qtTables = JpegParser::extractQuantizationTables(filePath);
+            quantizationInfo = JpegParser::quantizationTablesToString(qtTables);
+
+            if (quantizationInfo.isEmpty()) {
+                quantizationInfo = "Матрица квантования не найдена или недоступна";
+            }
+        }
+
         emit fileProcessed(fileInfo.fileName(), size, dpiX, dpiY,
-                           colorDepth, format, compressionType, compressionRatio);
+                           colorDepth, format, compressionType,
+                           compressionRatio, quantizationInfo);
 
         int percent = (i + 1) * 100 / totalFiles;
         emit progressUpdated(percent, fileInfo.fileName());

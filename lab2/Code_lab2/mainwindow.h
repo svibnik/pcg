@@ -18,6 +18,10 @@
 #include <QImageReader>
 #include <QThread>
 #include <QScrollArea>
+#include <QDialog>
+#include <QTextEdit>
+#include <QMessageBox>
+#include <QFont>
 
 class FileProcessor;
 
@@ -37,7 +41,8 @@ private slots:
     void onFileProcessed(const QString &filename, const QSize &size,
                          int dpiX, int dpiY, int colorDepth,
                          const QString &format, const QString &compressionType,
-                         double compressionRatio);
+                         double compressionRatio, const QString &quantizationInfo);
+    void showQuantizationMatrix(int row, int column);
 
 private:
     void setupUI();
@@ -45,7 +50,7 @@ private:
     void addFileToTable(const QString &filename, const QSize &size,
                         int dpiX, int dpiY, int colorDepth,
                         const QString &format, const QString &compressionType,
-                        double compressionRatio);
+                        double compressionRatio, const QString &quantizationInfo);
 
     QWidget *centralWidget;
     QVBoxLayout *mainLayout;

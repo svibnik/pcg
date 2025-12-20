@@ -24,7 +24,7 @@ signals:
     void fileProcessed(const QString &filename, const QSize &size,
                        int dpiX, int dpiY, int colorDepth,
                        const QString &format, const QString &compressionType,
-                       double compressionRatio);
+                       double compressionRatio, const QString &quantizationInfo);
     void finished();
 
 private:
